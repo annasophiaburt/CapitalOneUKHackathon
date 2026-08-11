@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, session
 from flask_cors import CORS
+from psutil import users
 from calculator import calculate_budget_summary, validate_budget, generate_suggestions
 import sqlite3, os, csv
 from datetime import date
@@ -123,16 +124,18 @@ def get_latest_budget(user_id):
     pass
 
 def save_budget(user_id, monthly_income, carryover, categories):
+    _write_csv("budgets.csv", _next_id(_read_csv("budgets.csv")), [user_id, monthly_income, carryover, categories])
     # TODO: append a new row to budgets.csv and save categories, return the new id
-    pass
 
 def update_budget(budget_id, monthly_income, carryover, categories):
+    budget_row = get_budget_by_id(budget_id)
+    _write_csv("budgets.csv", budget_row, [budget_id, monthly_income, carryover, categories])
     # TODO: update the matching row in budgets.csv, replace its categories
-    pass
 
 def delete_budget(budget_id):
+    budget_row = get_budget_by_id(budget_id)
+    
     # TODO: remove the budget row from budgets.csv and its categories from categories.csv
-    pass
 
 def register_user(username, password, name, email):
     # TODO: check username not already taken, append new user to users.csv, return True/False
