@@ -173,6 +173,26 @@ def login():
     session["user_id"] = int(user["id"])
     return jsonify({"message": "Login successful", "name": user["name"]}), 200
 
+@app.route("/signup", methods=["POST"])
+def signup():
+    data     = request.get_json()
+    name = data.get("name", "").strip()
+    email = ("email", "").strip()
+    username = data.get("username", "").strip()
+    password = data.get("password", "").strip()
+
+    if not name or not email or not username or not password:
+        return jsonify({"error": "All form inputs are required"}), 400
+
+    all_rows = _read_csv("users.csv")
+
+    _write_csv("users.csv", all_rows,
+                   ["name","email","username","password"])
+
+    user = find_user(username, password)
+    session["user_id"] = int(user["id"])
+
+    return jsonify({"message": "Signup successful", "name": user["name"]}), 200
 
 @app.route("/logout", methods=["POST"])
 def logout():
