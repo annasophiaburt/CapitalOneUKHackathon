@@ -27,7 +27,7 @@ DB_PATH  = os.path.join(DATA_DIR, "data.db")
 #     conn = sqlite3.connect(DB_PATH)
 #     conn.row_factory = sqlite3.Row
 #     return conn
-#
+
 # def find_user(username, password):
 #     conn = get_db()
 #     row  = conn.execute(
@@ -36,41 +36,65 @@ DB_PATH  = os.path.join(DATA_DIR, "data.db")
 #     ).fetchone()
 #     conn.close()
 #     return row
-#
+
 # def find_user_by_id(user_id):
 #     conn = get_db()
 #     row  = conn.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
 #     conn.close()
 #     return row
-#
+
 # def get_budgets_for_user(user_id):
 #     # TODO: query budgets table for all budgets belonging to user_id
-#     pass
-#
+#     conn = get_db()
+#     row  = conn.execute(
+#         "SELECT * FROM budgets WHERE user_id = ?",
+#         (user_id)
+#     ).fetchone()
+#     conn.close()
+#     return row
+
 # def get_budget_by_id(budget_id):
 #     # TODO: query budgets table for a single budget by id
-#     pass
-#
+#     conn = get_db()
+#     row  = conn.execute(
+#         "SELECT * FROM budgets WHERE id = ?",
+#         (budget_id)
+#     ).fetchone()
+#     conn.close()
+#     return row
+
 # def get_categories_for_budget(budget_id):
 #     # TODO: query categories table for all rows with matching budget_id
-#     pass
-#
+#     conn = get_db()
+#     row  = conn.execute(
+#         "SELECT * FROM categories WHERE budget_id = ?",
+#         (budget_id)
+#     ).fetchone()
+#     conn.close()
+#     return row
+
 # def get_latest_budget(user_id):
 #     # TODO: return the most recently created budget for this user, or None
-#     pass
-#
+#     conn = get_db()
+#     row  = conn.execute(
+#         "SELECT TOP 1 FROM budgets WHERE userid = ? ORDER BY date_created DESC",
+#         (user_id)
+#     ).fetchone()
+#     conn.close()
+#     return row
+
 # def save_budget(user_id, monthly_income, carryover, categories):
 #     # TODO: INSERT a new budget row and its categories, return the new budget id
 #     pass
-#
+
 # def update_budget(budget_id, monthly_income, carryover, categories):
 #     # TODO: UPDATE the budget row, DELETE old categories, INSERT new ones
 #     pass
-#
+
 # def delete_budget(budget_id):
 #     # TODO: DELETE the budget and its categories
 #     pass
-#
+
 # def register_user(username, password, name, email):
 #     # TODO: check username not taken, INSERT new user, return True/False
 #     pass
@@ -109,19 +133,38 @@ def find_user_by_id(user_id):
 
 def get_budgets_for_user(user_id):
     # TODO: read budgets.csv and return all rows where user_id matches
-    pass
+    res = []
+    for row in _read_csv("budgets.csv"):
+        if row["id"] == str(user_id):
+            res.append(row)
+    return res
+
 
 def get_budget_by_id(budget_id):
     # TODO: read budgets.csv and return the row where id matches, or None
-    pass
+    for row in _read_csv("budgets.csv"):
+        if row["id"] == str(budget_id):
+            return row
+    return None
 
 def get_categories_for_budget(budget_id):
     # TODO: read categories.csv and return all rows where budget_id matches
-    pass
+    res = []
+    for row in _read_csv("categories.csv"):
+        if row["id"] == str(budget_id):
+            res.append(row)
+    return res
 
 def get_latest_budget(user_id):
     # TODO: get all budgets for this user and return the most recently created, or None
-    pass
+    selected = None
+    for row in _read_csv("budgets.csv"):
+        if row["id"] == str(user_id) and not selected:
+            selected = row["date_created"]
+        elif row["id"] == str(user_id) and row["date_created"] < selected:
+            selected = row["date_created"]
+            res = row
+    return res
 
 def save_budget(user_id, monthly_income, carryover, categories):
     _write_csv("budgets.csv", _next_id(_read_csv("budgets.csv")), [user_id, monthly_income, carryover, categories])
